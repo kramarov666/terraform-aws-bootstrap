@@ -45,3 +45,9 @@ variable "region" {
   default     = "us-east-1"
   type        = string
 }
+
+variable "environment" {
+  description = "The environment name."
+  default     = "prod"
+  type        = string
+}
