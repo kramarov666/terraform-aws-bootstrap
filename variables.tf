@@ -1,36 +1,13 @@
 variable "account_alias" {
   description = "The desired AWS account alias."
+  default     = "kramarov666-tfalias"
   type        = string
-}
-
-variable "bucket_key_enabled" {
-  type        = bool
-  default     = false
-  description = "Whether or not to use Amazon S3 Bucket Keys for SSE-KMS."
 }
 
 variable "bucket_purpose" {
   description = "Name to identify the bucket's purpose"
   default     = "tf-state"
   type        = string
-}
-
-variable "dynamodb_point_in_time_recovery" {
-  type        = bool
-  default     = false
-  description = "Point-in-time recovery options"
-}
-
-variable "dynamodb_table_name" {
-  description = "Name of the DynamoDB Table for locking Terraform state."
-  default     = "terraform-state-lock"
-  type        = string
-}
-
-variable "enable_dynamodb_state_lock" {
-  type        = bool
-  default     = true
-  description = "Create a DynamoDB table for state locking. DynamoDB-based locking is deprecated in favor of native S3 state locking (set the backend's `use_lockfile = true`); set this to `false` to skip the table. See <https://developer.hashicorp.com/terraform/language/backend/s3#state-locking>"
 }
 
 variable "enable_s3_public_access_block" {
@@ -45,19 +22,9 @@ variable "kms_master_key_id" {
   description = "The AWS KMS master key ID used for the SSE-KMS encryption of the state bucket."
 }
 
-variable "log_bucket_versioning" {
-  description = "A string that indicates the versioning status for the log bucket."
-  default     = "Disabled"
-  type        = string
-  validation {
-    condition     = contains(["Enabled", "Disabled", "Suspended"], var.log_bucket_versioning)
-    error_message = "Valid values for versioning_status are Enabled, Disabled, or Suspended."
-  }
-}
-
-variable "log_name" {
-  description = "Log name (for backwards compatibility this can be modified to logs)"
-  default     = "log"
+variable "tfstate_bucket_name" {
+  description = "terraform state bucket"
+  default     = "tfstate-bucket"
   type        = string
 }
 
@@ -75,5 +42,6 @@ variable "manage_account_alias" {
 
 variable "region" {
   description = "AWS region."
+  default     = "us-east-1"
   type        = string
 }
