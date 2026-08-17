@@ -5,5 +5,5 @@ output "state_bucket" {
 
 output "iam_policy_arn" {
   description = "The ARN of the IAM policy"
-  value       = aws_iam_role.terraform_oidc_role.arn
+  value       = aws_iam_role.github_actions.arn
 }

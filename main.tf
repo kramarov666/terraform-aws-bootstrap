@@ -1,6 +1,3 @@
-locals {
-  state_bucket = "${var.account_alias}-${var.bucket_purpose}-${var.region}"
-}
 
 data "aws_caller_identity" "current" {}
 
@@ -43,53 +40,53 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate_bucket" {
   }
 }
 
-data "tls_certificate" "provider" {
-  url = "https://app.terraform.io"
+data "tls_certificate" "github" {
+  url = "https://token.actions.githubusercontent.com"
 }
 
-resource "aws_iam_openid_connect_provider" "hcp_terraform" {
-  url = "https://app.terraform.io"
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
 
   client_id_list = [
-    "aws.workload.identity", # Default audience in HCP Terraform for AWS.
+    "sts.amazonaws.com"
   ]
 
   thumbprint_list = [
-    data.tls_certificate.provider.certificates[0].sha1_fingerprint,
+    data.tls_certificate.github.certificates[0].sha1_fingerprint
   ]
-}
 
-data "aws_iam_policy_document" "terraform_oidc_assume_role_policy" {
-  statement {
-    effect = "Allow"
-
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-
-    principals {
-      type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.hcp_terraform.arn]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "app.terraform.io:aud"
-      values   = ["aws.workload.identity"]
-    }
-
-    condition {
-      test     = "StringLike"
-      variable = "app.terraform.io:sub"
-      values   = ["organization:kramarov666:project:terraform-micro:workspace:*:run_phase:*"]
-    }
+  tags = {
+    Name = "github-actions-oidc"
   }
 }
 
-resource "aws_iam_role" "terraform_oidc_role" {
-  name               = "terraform_oidc_role"
-  assume_role_policy = data.aws_iam_policy_document.terraform_oidc_assume_role_policy.json
+resource "aws_iam_role" "github_actions" {
+  name = "terraform_oidc_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect = "Allow"
+
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.github.arn
+      }
+
+      Action = "sts:AssumeRoleWithWebIdentity"
+
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
+          "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:prod"
+        }
+      }
+    }]
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "terraform_admin_access" {
   policy_arn = data.aws_iam_policy.admin_access.arn
-  role       = aws_iam_role.terraform_oidc_role.name
+  role       = aws_iam_role.github_actions.name
 }
