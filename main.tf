@@ -21,8 +21,8 @@ resource "aws_iam_account_alias" "alias" {
 }
 
 resource "aws_s3_bucket" "tfstate_bucket" {
-  bucket           = format("%s-%s-%s-%s", var.environment, var.tfstate_bucket_name, data.aws_caller_identity.current.account_id, data.aws_region.current.region)
-  region           = var.region
+  bucket = format("%s-%s-%s-%s", var.environment, var.tfstate_bucket_name, data.aws_caller_identity.current.account_id, data.aws_region.current.region)
+  region = var.region
 }
 
 resource "aws_s3_bucket_versioning" "tfstate_bucket" {
@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "terraform_oidc_assume_role_policy" {
     condition {
       test     = "StringLike"
       variable = "app.terraform.io:sub"
-      values   = ["organization:*:project:*:workspace:*:run_phase:*"]
+      values   = ["organization:kramarov666:project:terraform-micro:workspace:*:run_phase:*"]
     }
   }
 }
