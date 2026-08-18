@@ -125,16 +125,204 @@ resource "aws_iam_policy" "github_actions_readonly_policy" {
     Version = "2012-10-17"
 
     Statement = [
+
+      # STS
       {
-        Effect   = "Allow"
-        Action   = [
-          "s3:GetObject",
-          "s3:ListBucket",
-          "kms:Decrypt",
-          "kms:DescribeKey"
+        Sid    = "STSReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "sts:GetCallerIdentity"
         ]
+
+        Resource = "*"
+      },
+
+      # EC2 / EBS / Networking
+      {
+        Sid    = "EC2ReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "ec2:Describe*"
+        ]
+
+        Resource = "*"
+      },
+
+      # EKS
+      {
+        Sid    = "EKSReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "eks:Describe*",
+          "eks:List*"
+        ]
+
+        Resource = "*"
+      },
+
+      # Auto Scaling
+      {
+        Sid    = "AutoScalingReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "autoscaling:Describe*"
+        ]
+
+        Resource = "*"
+      },
+
+      # Elastic Load Balancing
+      {
+        Sid    = "ELBReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "elasticloadbalancing:Describe*"
+        ]
+
+        Resource = "*"
+      },
+
+      # KMS
+      {
+        Sid    = "KMSReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "kms:DescribeKey",
+          "kms:GetKeyPolicy",
+          "kms:GetKeyRotationStatus",
+          "kms:ListAliases",
+          "kms:ListGrants",
+          "kms:ListKeyPolicies",
+          "kms:ListResourceTags",
+          "kms:ListRetirableGrants"
+        ]
+
+        Resource = "*"
+      },
+
+      # S3
+      {
+        Sid    = "S3ReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "s3:GetBucketLocation",
+          "s3:GetBucketVersioning",
+          "s3:GetBucketEncryption",
+          "s3:GetBucketPolicy",
+          "s3:GetBucketAcl",
+          "s3:GetBucketTagging",
+          "s3:GetLifecycleConfiguration",
+          "s3:GetReplicationConfiguration",
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:ListBucketVersions"
+        ]
+
+        Resource = "*"
+      },
+
+      # IAM
+      {
+        Sid    = "IAMReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "iam:Get*",
+          "iam:List*"
+        ]
+
+        Resource = "*"
+      },
+
+      # CloudWatch
+      {
+        Sid    = "CloudWatchReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "cloudwatch:Describe*",
+          "cloudwatch:Get*",
+          "cloudwatch:List*"
+        ]
+
+        Resource = "*"
+      },
+
+      # CloudWatch Logs
+      {
+        Sid    = "CloudWatchLogsReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "logs:Describe*",
+          "logs:Get*",
+          "logs:ListTagsForResource"
+        ]
+
+        Resource = "*"
+      },
+
+      # Route53
+      {
+        Sid    = "Route53ReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "route53:Get*",
+          "route53:List*"
+        ]
+
+        Resource = "*"
+      },
+
+      # ECR
+      {
+        Sid    = "ECRReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "ecr:Describe*",
+          "ecr:Get*",
+          "ecr:List*"
+        ]
+
+        Resource = "*"
+      },
+
+      #Encrypt-decrypt kms for s3 bucket
+      {
+        Sid    = "AccessS3BucketKMSKey"
+        Effect = "Allow"
+
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt"
+        ]
+
+        Resource = aws_kms_key.tfstate_bucket_key.arn
+      },
+
+      #SSM rules
+      {
+        Sid    = "SSMReadOnly"
+        Effect = "Allow"
+
+        Action = [
+          "ssm:List*",
+          "ssm:Get*"
+        ]
+
         Resource = "*"
       }
+
     ]
   })
 }
