@@ -60,8 +60,8 @@ resource "aws_iam_openid_connect_provider" "github" {
   }
 }
 
-resource "aws_iam_role" "github_actions" {
-  name = "terraform_oidc_role"
+resource "aws_iam_role" "github_actions_admin" {
+  name = "terraform_oidc_role_admin"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -88,5 +88,58 @@ resource "aws_iam_role" "github_actions" {
 
 resource "aws_iam_role_policy_attachment" "terraform_admin_access" {
   policy_arn = data.aws_iam_policy.admin_access.arn
-  role       = aws_iam_role.github_actions.name
+  role       = aws_iam_role.github_actions_admin.name
+}
+
+resource "aws_iam_role" "github_actions_readonly" {
+  name = "terraform_oidc_role_readonly"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect = "Allow"
+
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.github.arn
+      }
+
+      Action = "sts:AssumeRoleWithWebIdentity"
+
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
+          "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:*"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy" "github_actions_readonly_policy" {
+  name        = "terraform_oidc_policy_readonly"
+  description = "This policy grants read-only access to AWS resources for GitHub Actions workflows."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "s3:GetObject",
+          "s3:ListBucket",
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_readonly_policy_attachment" {
+  policy_arn = aws_iam_policy.github_actions_readonly_policy.arn
+  role       = aws_iam_role.github_actions_readonly.name
 }
