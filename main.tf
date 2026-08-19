@@ -110,7 +110,7 @@ resource "aws_iam_role" "github_actions_readonly" {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
-          "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:ref:refs/heads/edit-pipeline"
+          "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:preprod"
         }
       }
     }]
