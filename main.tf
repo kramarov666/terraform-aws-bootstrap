@@ -97,23 +97,44 @@ resource "aws_iam_role" "github_actions_readonly" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
 
-    Statement = [{
-      Effect = "Allow"
+    Statement = [
+      {
+        Sid    = "AllowToPreprod"
+        Effect = "Allow"
 
-      Principal = {
-        Federated = aws_iam_openid_connect_provider.github.arn
-      }
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
 
-      Action = "sts:AssumeRoleWithWebIdentity"
+        Action = "sts:AssumeRoleWithWebIdentity"
 
-      Condition = {
-        StringEquals = {
-          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
-          "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:preprod"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
+            "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:preprod"
+          }
+        }
+      },
+      {
+        Sid    = "AllowToProd"
+        Effect = "Allow"
+
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+
+        Action = "sts:AssumeRoleWithWebIdentity"
+
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            #https://github.com/aws-actions/configure-aws-credentials#oidc-configuration-details
+            "token.actions.githubusercontent.com:sub" = "repo:kramarov666@4160554/terraform-micro@1322623873:environment:prod"
+          }
         }
       }
-    }]
+    ]
   })
 }
 
@@ -200,7 +221,8 @@ resource "aws_iam_policy" "github_actions_readonly_policy" {
           "kms:ListGrants",
           "kms:ListKeyPolicies",
           "kms:ListResourceTags",
-          "kms:ListRetirableGrants"
+          "kms:ListRetirableGrants",
+          "kms:GenerateDataKey"
         ]
 
         Resource = "*"
