@@ -245,7 +245,8 @@ resource "aws_iam_policy" "github_actions_readonly_policy" {
           "s3:GetObject",
           "s3:GetObjectVersion",
           "s3:ListBucket",
-          "s3:ListBucketVersions"
+          "s3:ListBucketVersions",
+          "s3:PutObject"
         ]
 
         Resource = "*"
