@@ -3,6 +3,11 @@ output "state_bucket" {
   value       = aws_s3_bucket.tfstate_bucket.id
 }
 
+output "vault_backup_bucket" {
+  description = "The name of the Vault backups S3 bucket"
+  value       = aws_s3_bucket.vault_backup_bucket.id
+}
+
 output "iam_role_arn_admin" {
   description = "The ARN of the IAM Admin role"
   value       = aws_iam_role.github_actions_admin.arn

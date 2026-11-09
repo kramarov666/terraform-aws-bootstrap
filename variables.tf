@@ -28,6 +28,12 @@ variable "tfstate_bucket_name" {
   type        = string
 }
 
+variable "vault_backup_bucket_name" {
+  description = "Vault backups bucket"
+  default     = "vault-backups"
+  type        = string
+}
+
 variable "log_retention" {
   description = "Log retention of access logs of state bucket."
   default     = 90

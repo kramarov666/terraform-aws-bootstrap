@@ -373,3 +373,8 @@ resource "aws_kms_alias" "vault_unseal" {
   name          = "alias/${var.environment}-vault-unseal"
   target_key_id = aws_kms_key.vault_unseal.key_id
 }
+
+resource "aws_s3_bucket" "vault_backup_bucket" {
+  bucket = format("%s-%s-%s-%s", var.environment, var.vault_backup_bucket_name, data.aws_caller_identity.current.account_id, data.aws_region.current.region)
+  region = var.region
+}
