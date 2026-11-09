@@ -354,3 +354,22 @@ resource "aws_iam_role_policy_attachment" "github_actions_readonly_policy_attach
   policy_arn = aws_iam_policy.github_actions_readonly_policy.arn
   role       = aws_iam_role.github_actions_readonly.name
 }
+
+resource "aws_kms_key" "vault_unseal" {
+  description             = "KMS key for Vault auto-unseal in ${var.environment}"
+  deletion_window_in_days = 30
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "${var.environment}-vault-unseal-kms"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_kms_alias" "vault_unseal" {
+  name          = "alias/${var.environment}-vault-unseal"
+  target_key_id = aws_kms_key.vault_unseal.key_id
+}

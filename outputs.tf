@@ -12,3 +12,8 @@ output "iam_role_arn_readonly" {
   description = "The ARN of the IAM ReadOnly role"
   value       = aws_iam_role.github_actions_readonly.arn
 }
+
+output "vault_unseal_kms_key_arn" {
+  description = "The ARN of the KMS key used for Vault auto-unseal"
+  value       = aws_kms_key.vault_unseal.arn
+}
